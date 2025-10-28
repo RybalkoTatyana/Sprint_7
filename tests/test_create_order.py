@@ -1,7 +1,8 @@
-import requests
 import allure
 import pytest
-from data.URL import url
+from api.order_api import OrderAPI
+from data.order_data import default_order_payload
+
 
 class TestCreateOrder:
 
@@ -11,22 +12,10 @@ class TestCreateOrder:
         ['BLACK', 'GRAY'],
         []
     ])
-
     @allure.title('Создание заказа')
     def test_create_order(self, color):
-        payload = {
-            "firstName": "Tatyana",
-            "lastName": "Archangel",
-            "address": "Moscow, 11 apt.",
-            "metroStation": 1,
-            "phone": "+7 900 800 11 12",
-            "rentTime": 3,
-            "deliveryDate": "2025-10-25",
-            "comment": "No comment",
-            "color": color
-        }
+        payload = default_order_payload(color=color)
+        response = OrderAPI.create(payload)
 
-        response = requests.post(f"{url}/api/v1/orders", json=payload)
-
-        assert response.status_code == 201, f"Ожидали 201, получили {response.status_code}"
-        assert "track" in response.json(), "Ответ не содержит track"
+        assert response.status_code == 201
+        assert "track" in response.json()
